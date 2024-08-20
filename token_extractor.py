@@ -126,7 +126,7 @@ class XiaomiCloudConnector:
     def get_device_data(self, country):
         url = self.get_api_url(country) + "/user/get_user_device_data"
         params = {
-            "data": '{"did":"blt.3.1ikalbudc4c00","time_start":1724112000.3180001,"time_end":1724198400.3180001,"key":"2.1060","type":"prop"}'
+            "data": '{"did":"blt.3.1ikalbudc4c00","time_start":1724112000,"time_end":1724198400,"key":"2.1060","type":"prop"}'
         }
         return self.execute_api_call_encrypted(url, params)
 
