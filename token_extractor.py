@@ -122,6 +122,13 @@ class XiaomiCloudConnector:
             ',  "limit": 200,  "get_split_device": true, "support_smart_home": true}'
         }
         return self.execute_api_call_encrypted(url, params)
+    
+    def get_device_data(self, country):
+        url = self.get_api_url(country) + "/user/get_user_device_data"
+        params = {
+            "data": '{"did":"blt.3.1ikalbudc4c00","time_start":1724112000.3180001,"time_end":1724198400.3180001,"key":"2.1060","type":"prop"}'
+        }
+        return self.execute_api_call_encrypted(url, params)
 
     def get_dev_cnt(self, country):
         url = self.get_api_url(country) + "/v2/user/get_device_cnt"
@@ -252,11 +259,12 @@ def main():
     servers = ["cn", "de", "us", "ru", "tw", "sg", "in", "i2"]
     servers_str = ", ".join(servers)
     print("Username (email or user ID):")
-    username = input()
+    username = ''
     print("Password:")
-    password = getpass("")
+    password = ''
     print(f"Server (one of: {servers_str}) Leave empty to check all available:")
-    server = input()
+    # server = input()
+    server = 'cn'
     while server not in ["", *servers]:
         print(f"Invalid server provided. Valid values: {servers_str}")
         print("Server:")
@@ -286,36 +294,37 @@ def main():
             if len(hh) == 0:
                 print(f'No homes found for server "{current_server}".')
                 continue
-
-            for home in hh:
-                devices = connector.get_devices(current_server, home['home_id'], home['home_owner'])
-                if devices is not None:
-                    if devices["result"]["device_info"] is None or len(devices["result"]["device_info"]) == 0:
-                        print(f'No devices found for server "{current_server}" @ home "{home["home_id"]}".')
-                        continue
-                    print(f'Devices found for server "{current_server}" @ home "{home["home_id"]}":')
-                    for device in devices["result"]["device_info"]:
-                        print_tabbed("---------", 3)
-                        if "name" in device:
-                            print_entry("NAME", device["name"], 3)
-                        if "did" in device:
-                            print_entry("ID", device["did"], 3)
-                            if "blt" in device["did"]:
-                                beaconkey = connector.get_beaconkey(current_server, device["did"])
-                                if beaconkey and "result" in beaconkey and "beaconkey" in beaconkey["result"]:
-                                    print_entry("BLE KEY", beaconkey["result"]["beaconkey"], 3)
-                        if "mac" in device:
-                            print_entry("MAC", device["mac"], 3)
-                        if "localip" in device:
-                            print_entry("IP", device["localip"], 3)
-                        if "token" in device:
-                            print_entry("TOKEN", device["token"], 3)
-                        if "model" in device:
-                            print_entry("MODEL", device["model"], 3)
-                    print_tabbed("---------", 3)
-                    print()
-                else:
-                    print(f"Unable to get devices from server {current_server}.")
+            # for home in hh:
+                # devices = connector.get_devices(current_server, home['home_id'], home['home_owner'])
+            res = connector.get_device_data(current_server)
+            print(res)
+                # if devices is not None:
+                #     if devices["result"]["device_info"] is None or len(devices["result"]["device_info"]) == 0:
+                #         print(f'No devices found for server "{current_server}" @ home "{home["home_id"]}".')
+                #         continue
+                #     print(f'Devices found for server "{current_server}" @ home "{home["home_id"]}":')
+                #     for device in devices["result"]["device_info"]:
+                #         print_tabbed("---------", 3)
+                #         if "name" in device:
+                #             print_entry("NAME", device["name"], 3)
+                #         if "did" in device:
+                #             print_entry("ID", device["did"], 3)
+                #             if "blt" in device["did"]:
+                #                 beaconkey = connector.get_beaconkey(current_server, device["did"])
+                #                 if beaconkey and "result" in beaconkey and "beaconkey" in beaconkey["result"]:
+                #                     print_entry("BLE KEY", beaconkey["result"]["beaconkey"], 3)
+                #         if "mac" in device:
+                #             print_entry("MAC", device["mac"], 3)
+                #         if "localip" in device:
+                #             print_entry("IP", device["localip"], 3)
+                #         if "token" in device:
+                #             print_entry("TOKEN", device["token"], 3)
+                #         if "model" in device:
+                #             print_entry("MODEL", device["model"], 3)
+                #     print_tabbed("---------", 3)
+                #     print()
+                # else:
+                #     print(f"Unable to get devices from server {current_server}.")
     else:
         print("Unable to log in.")
 
